@@ -4,6 +4,7 @@ import { UserController } from './user.controller';
 import { User } from './user.model';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from 'src/auth/auth.module';
+import { PasswordList } from 'src/password-list/password-list.model';
 
 @Module({
   providers: [UserService],

@@ -1,5 +1,13 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
-
+import {
+  Column,
+  DataType,
+  Model,
+  Table,
+  ForeignKey,
+  HasMany,
+} from 'sequelize-typescript';
+import { PasswordList } from 'src/password-list/password-list.model';
+import { OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 interface IUserCreation {
   first_name: string;
   last_name: string;
@@ -14,6 +22,8 @@ export class User extends Model<User, IUserCreation> {
     autoIncrement: true,
     primaryKey: true,
   })
+  @PrimaryGeneratedColumn()
+  @ForeignKey(() => PasswordList)
   id: number;
 
   @Column({ type: DataType.STRING })
@@ -30,4 +40,7 @@ export class User extends Model<User, IUserCreation> {
 
   @Column({ type: DataType.STRING })
   password: string;
+
+  @HasMany(() => PasswordList)
+  passwordList: PasswordList[];
 }

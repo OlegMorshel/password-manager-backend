@@ -4,6 +4,9 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './user/user.model';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { PasswordListModule } from './password-list/password-list.module';
+import { PasswordList } from './password-list/password-list.model';
+import { UserService } from './user/user.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,12 +19,13 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User],
+      models: [User, PasswordList],
       autoLoadModels: true,
       synchronize: true,
     }),
     UserModule,
     AuthModule,
+    PasswordListModule,
   ],
   controllers: [],
   providers: [],
