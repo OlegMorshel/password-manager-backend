@@ -1,7 +1,9 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 interface IUserCreation {
-  email: string;
+  first_name: string;
+  last_name: string;
+  login: string;
   password: string;
 }
 @Table({ tableName: 'users' })
@@ -12,19 +14,16 @@ export class User extends Model<User, IUserCreation> {
     autoIncrement: true,
     primaryKey: true,
   })
-  userId: number;
+  id: number;
 
-  @Column({ type: DataType.STRING, allowNull: false })
+  @Column({ type: DataType.STRING })
   first_name: string;
 
   @Column({ type: DataType.STRING })
-  middle_name: string;
-
-  @Column({ type: DataType.STRING, allowNull: false })
   last_name: string;
 
-  @Column({ type: DataType.STRING })
-  image: string;
+  @Column({ type: DataType.INTEGER, unique: true })
+  file_id: number;
 
   @Column({ type: DataType.STRING, unique: true })
   login: string;
