@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.model';
 
 @Injectable()
@@ -23,8 +24,26 @@ export class UserService {
     return users;
   }
 
+  async updateUser(dto: UpdateUserDto, id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+    if (!!user) {
+      user.first_name = dto.first_name;
+      user.last_name = dto.last_name;
+      user.file_id = dto.file_id;
+      await user.save();
+      return user;
+    }
+    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  }
+
   async deleteUser(@Param('id') id: number) {
-    return this.userRepository.destroy({ where: { id } });
+    const isExistedUser = await this.findById(id);
+    if (isExistedUser) {
+      return this.userRepository.destroy({ where: { id } });
+    }
+    throw new HttpException('This user does not exist', HttpStatus.CONFLICT);
   }
 
   async findById(@Param('id') id: number) {
@@ -39,5 +58,14 @@ export class UserService {
       throw new UnauthorizedException('This login is used');
     }
     return user;
+  }
+
+  async getUserByLogin(login: string) {
+    const user = this.userRepository.findOne({
+      where: { login },
+      include: { all: true },
+    });
+    if (user) return user;
+    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
 }
