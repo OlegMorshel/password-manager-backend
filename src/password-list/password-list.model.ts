@@ -11,7 +11,7 @@ interface IPasswordListCreation {
   name: string;
   userId: string;
 }
-@Table({ tableName: 'password-list' })
+@Table({ tableName: 'password-list', createdAt: false, updatedAt: false })
 export class PasswordList extends Model<PasswordList, IPasswordListCreation> {
   @Column({
     type: DataType.INTEGER,
