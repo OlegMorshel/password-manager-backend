@@ -7,6 +7,8 @@ import {
   Post,
   Put,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { JswAuthGuard } from 'src/auth/jwt-ath.guard';
@@ -24,6 +26,7 @@ export class PasswordListController {
   ) {}
   @UseGuards(JswAuthGuard)
   @Post()
+  @UsePipes(new ValidationPipe())
   create(
     @UserDecorator('id') user: User,
     @Body() passwordList: CreatePasswordListDto,

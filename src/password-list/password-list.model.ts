@@ -5,7 +5,9 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import { PasswordItem } from 'src/password-item/password-item.model';
 import { User } from 'src/user/user.model';
+import { PrimaryGeneratedColumn } from 'typeorm';
 
 interface IPasswordListCreation {
   name: string;
@@ -19,6 +21,8 @@ export class PasswordList extends Model<PasswordList, IPasswordListCreation> {
     autoIncrement: true,
     primaryKey: true,
   })
+  @PrimaryGeneratedColumn()
+  @ForeignKey(() => PasswordItem)
   id: number;
 
   @Column({ type: DataType.STRING })

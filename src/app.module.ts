@@ -6,6 +6,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PasswordListModule } from './password-list/password-list.module';
 import { PasswordList } from './password-list/password-list.model';
+import { PasswordItemModule } from './password-item/password-item.module';
+import { PasswordItem } from './password-item/password-item.model';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,13 +20,14 @@ import { PasswordList } from './password-list/password-list.model';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, PasswordList],
+      models: [User, PasswordList, PasswordItem],
       autoLoadModels: true,
       synchronize: true,
     }),
     UserModule,
     AuthModule,
     PasswordListModule,
+    PasswordItemModule,
   ],
   controllers: [],
   providers: [],
