@@ -1,6 +1,5 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Request } from 'express';
 import { CreatePasswordListDto } from './dto/create-password-list.dto';
 import { PasswordList } from './password-list.model';
 
@@ -10,10 +9,13 @@ export class PasswordListService {
     @InjectModel(PasswordList)
     private passwordListRepository: typeof PasswordList,
   ) {}
-  async createList(res: Request, createPasswordListDto: CreatePasswordListDto) {
+  async createList(
+    createPasswordListDto: CreatePasswordListDto,
+    userId: number,
+  ) {
     return await this.passwordListRepository.create({
       ...createPasswordListDto,
-      userId: String(createPasswordListDto.userId),
+      userId: String(userId),
     });
   }
 

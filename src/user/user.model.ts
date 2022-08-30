@@ -7,7 +7,7 @@ import {
   HasMany,
 } from 'sequelize-typescript';
 import { PasswordList } from 'src/password-list/password-list.model';
-import { OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { PrimaryGeneratedColumn } from 'typeorm';
 interface IUserCreation {
   first_name: string;
   last_name: string;

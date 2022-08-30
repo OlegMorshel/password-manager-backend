@@ -24,7 +24,6 @@ export class PasswordList extends Model<PasswordList, IPasswordListCreation> {
   @Column({ type: DataType.STRING })
   name: string;
   @ForeignKey(() => User)
-  // @BelongsTo(() => User, 'userId')
   @Column
   userId: number;
 }

@@ -6,7 +6,6 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PasswordListModule } from './password-list/password-list.module';
 import { PasswordList } from './password-list/password-list.model';
-import { UserService } from './user/user.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
