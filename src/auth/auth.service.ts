@@ -1,62 +1,114 @@
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
+  ForbiddenException,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcryptjs';
-import { User } from 'src/user/user.model';
+import { ConfigService } from '@nestjs/config';
 import { AuthLoginUserDto } from './dto/auth-login.dto';
+import { comparePasswords, encodePassword } from 'src/utils/bcrypt';
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    private usersService: UserService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
-
-  async login(userDto: AuthLoginUserDto) {
-    const user = await this.validateUser(userDto);
-    return this.generateToken(user);
-  }
-
-  async registration(userDto: CreateUserDto) {
-    const candidate = await this.userService.getUserByLogin(userDto.login);
-    if (candidate) {
-      throw new HttpException(
-        'This login is used other person',
-        HttpStatus.BAD_REQUEST,
-      );
+  async signUp(createUserDto: CreateUserDto): Promise<any> {
+    // Check if user exists.
+    const userExists = await this.usersService.getUserByLogin(
+      createUserDto.login,
+    );
+    if (userExists) {
+      throw new BadRequestException('User already exists');
     }
 
-    const hashPassword = await bcrypt.hash(userDto.password, 5);
-    const user = await this.userService.createUser({
-      ...userDto,
-      password: hashPassword,
+    // Hash password
+    const hash = encodePassword(createUserDto.password);
+    const newUser = await this.usersService.createUser({
+      ...createUserDto,
+      password: hash,
     });
-    return this.generateToken(user);
+    const tokens = await this.getTokens(newUser.id, newUser.first_name);
+    await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+    return tokens;
   }
 
-  private async generateToken(user: User) {
-    const payload = {
-      name: user.first_name,
-      surname: user.last_name,
-      id: user.id,
+  async signIn(data: AuthLoginUserDto) {
+    // Check if user exists
+    const user = await this.usersService.getUserByLogin(data.login);
+    if (!user) throw new BadRequestException('User does not exist');
+    const passwordMatches = comparePasswords(data.password, user.password);
+    if (!passwordMatches)
+      throw new BadRequestException('Password is incorrect');
+    const tokens = await this.getTokens(user.id, user.first_name);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
+  }
+
+  async logout(userId: number) {
+    return await this.usersService.updateRefreshToken(userId, null);
+  }
+
+  hashData(data: string) {
+    return bcrypt.hash(data, 5);
+  }
+
+  reHashData(data: string) {
+    return this.jwtService.verify(data, {
+      secret: process.env.JWT_ACCESS_SECRET,
+    });
+  }
+
+  async updateRefreshToken(userId: number, refreshToken: string) {
+    const hashedRefreshToken = await this.hashData(refreshToken);
+    await this.usersService.updateRefreshToken(userId, hashedRefreshToken);
+  }
+
+  async getTokens(userId: number, username: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          username,
+        },
+        {
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: '15m',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          username,
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
     };
-
-    return { token: this.jwtService.sign(payload) };
   }
 
-  private async validateUser(userDto: AuthLoginUserDto) {
-    const user = await this.userService.getUserByLogin(userDto.login);
-    const passwordEqual = await bcrypt.compare(userDto.password, user.password);
-    if (user && passwordEqual) {
-      return user;
-    }
-    throw new UnauthorizedException({
-      message: 'Login or password do not correct',
-    });
+  async refreshTokens(userId: number, refreshToken: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new ForbiddenException('Access Denied');
+    const isMatchesTokens = bcrypt.compare(
+      refreshToken,
+      user.hastedRefreshToken,
+    );
+    if (!isMatchesTokens) throw new ForbiddenException('Access Denied');
+
+    const tokens = await this.getTokens(user.id, user.first_name);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
   }
 }

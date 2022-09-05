@@ -43,4 +43,7 @@ export class User extends Model<User, IUserCreation> {
 
   @HasMany(() => PasswordList)
   passwordList: PasswordList[];
+
+  @Column({ type: DataType.STRING })
+  hastedRefreshToken: string;
 }

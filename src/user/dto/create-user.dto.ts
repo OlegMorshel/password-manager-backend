@@ -10,4 +10,5 @@ export class CreateUserDto {
   @IsString({ message: 'Password must be string ' })
   @Length(4, 16, { message: 'More than 4 and less 16 symbols length' })
   readonly password: string;
+  readonly hashedRefreshToken: string;
 }

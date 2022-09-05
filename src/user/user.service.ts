@@ -68,4 +68,10 @@ export class UserService {
     if (user) return user;
     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
+
+  async updateRefreshToken(id: number, refreshToken: string | null) {
+    const selectedUser = await this.findById(id);
+    selectedUser.hastedRefreshToken = refreshToken;
+    selectedUser.save();
+  }
 }

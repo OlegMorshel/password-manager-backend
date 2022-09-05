@@ -20,12 +20,10 @@ export class JswAuthGuard implements CanActivate {
       const authHeader = req.headers.authorization;
       const bearer = authHeader.split(' ')[0];
       const token = authHeader.split(' ')[1];
-
       if (bearer !== 'Bearer' || !token) {
         throw new UnauthorizedException({ message: 'User is unauthorized' });
       }
-
-      const user = this.jwtService.verify(token);
+      const user = this.jwtService.decode(token);
       req.user = user;
       return true;
     } catch (error) {
