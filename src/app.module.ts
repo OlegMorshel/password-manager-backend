@@ -10,6 +10,8 @@ import { PasswordList } from './password-list/password-list.model';
 import { PasswordItemModule } from './password-item/password-item.module';
 import { PasswordItem } from './password-item/password-item.model';
 import { AtGuard } from './common/guards';
+import { MinioClientModule } from './minio-client/minio-client.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,6 +32,8 @@ import { AtGuard } from './common/guards';
     AuthModule,
     PasswordListModule,
     PasswordItemModule,
+    MinioClientModule,
+    FileUploadModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AtGuard }],

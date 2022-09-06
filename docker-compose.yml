@@ -1,37 +1,14 @@
 version: '3'
 services:
-  db:
-    image: postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    container_name: password-manager-backend
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
-  nestjs:
+  node-admin:
     build:
       context: .
-      dockerfile: ./Dockerfile
-    image: tusharchy/nest-and-postgres-application:latest
-    environment:
-      - DB_TYPE=${POSTGRES_USER}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASS=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_USER}
-      - POSTGRES_SYNC=false
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - APP_PORT=${PORT}
-    ports:
-      - '5000:5000' # expose-to-the-world : only-in-the-docker
-    container_name: password-manager-backend
-    depends_on:
-      - db
+      dockerfile: Dockerfile
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./:/app
+    command: sh -c "yarn && yarn build && serve -s /app/build"
+    ports:
+      - '3006:3000'
   pgadmin:
     image: dpage/pgadmin4
     restart: always
