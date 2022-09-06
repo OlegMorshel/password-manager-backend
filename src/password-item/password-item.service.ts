@@ -20,6 +20,14 @@ export class PasswordItemService {
   }
 
   async getDifferentPasswordListItems(passwordListId: number) {
+    const PasswordList = await this.passwordListRepository.findOne({
+      where: { id: passwordListId },
+    });
+    if (!PasswordList)
+      throw new HttpException(
+        'Password list id is not exist',
+        HttpStatus.NOT_FOUND,
+      );
     return await this.passwordItemRepository.findAll({
       where: { passwordListId },
     });
