@@ -15,7 +15,16 @@ export class PasswordItemService {
     return await this.passwordItemRepository.findAll();
   }
 
+  async getDifferentPasswordListItems(passwordListId: number) {
+    return await this.passwordItemRepository.findAll({
+      where: { passwordListId },
+    });
+  }
+
   async createPasswordItem(createPasswordItem: CreatedPasswordItemDto) {
+    const IsExistPasswordList = await this.passwordItemRepository.findOne({
+      where: {},
+    });
     return await this.passwordItemRepository.create(createPasswordItem);
   }
 

@@ -33,9 +33,8 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Public()
   @Post('logout')
-  logout(@GetCurrentUser() userId: number) {
+  logout(@GetCurrentUser('sub') userId: number) {
     return this.authService.logout(userId);
   }
 

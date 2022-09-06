@@ -3,44 +3,44 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
-import { JswAuthGuard } from 'src/auth/jwt-ath.guard';
-import { UserDecorator } from 'src/user/user.decorator';
-import { User } from 'src/user/user.model';
+import { GetCurrentUser } from 'src/common/decorators';
 import { CreatePasswordListDto } from './dto/create-password-list.dto';
 import { UpdatePasswordListDto } from './dto/update-password-list.dto';
 import { PasswordListService } from './password-list.service';
 
 @Controller('password-list')
 export class PasswordListController {
-  constructor(
-    private passwordListService: PasswordListService,
-    private authService: AuthService,
-  ) {}
-  @UseGuards(JswAuthGuard)
+  constructor(private passwordListService: PasswordListService) {}
+
+  @HttpCode(HttpStatus.CREATED)
   @Post()
-  @UsePipes(new ValidationPipe())
   create(
-    @UserDecorator('id') user: User,
+    @GetCurrentUser('sub') userId: number,
     @Body() passwordList: CreatePasswordListDto,
   ) {
-    return this.passwordListService.createList(passwordList, user.id);
+    return this.passwordListService.createList(passwordList, userId);
   }
+
+  @HttpCode(HttpStatus.OK)
   @Get()
-  @UseGuards(JswAuthGuard)
   getAll() {
     return this.passwordListService.getAll();
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Get('personal')
+  getCurrentUserList(@GetCurrentUser('sub') userId: number) {
+    return this.passwordListService.getCurrentUserLists(userId);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Put(':id')
-  @UseGuards(JswAuthGuard)
   updatePasswordList(
     @Param('id') id: number,
     @Body() updatedPasswordList: UpdatePasswordListDto,
@@ -48,8 +48,8 @@ export class PasswordListController {
     return this.passwordListService.updatePasswordList(id, updatedPasswordList);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  @UseGuards(JswAuthGuard)
   deletePasswordList(@Param('id') id: number) {
     return this.passwordListService.deletePasswordList(id);
   }

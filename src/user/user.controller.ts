@@ -5,12 +5,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Post,
   Put,
-  UseGuards,
 } from '@nestjs/common';
-import { JswAuthGuard } from 'src/auth/jwt-ath.guard';
+import { GetCurrentUser, Public } from 'src/common/decorators';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -19,23 +17,31 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
   }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
   @Get()
   getAll() {
     return this.userService.getAll();
   }
-  @UseGuards(JswAuthGuard)
-  @Put(':id')
-  updateUser(@Param('id') id: number, @Body() dto: UpdateUserDto) {
-    return this.userService.updateUser(dto, id);
-  }
-  @UseGuards(JswAuthGuard)
+
   @HttpCode(HttpStatus.OK)
-  @Delete(':id')
-  deleteUser(@Param('id') id: number) {
-    return this.userService.deleteUser(id);
+  @Put()
+  updateUser(
+    @GetCurrentUser('sub') userId: number,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.userService.updateUser(dto, userId);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete()
+  deleteUser(@GetCurrentUser('sub') userId: number) {
+    return this.userService.deleteUser(userId);
   }
 }

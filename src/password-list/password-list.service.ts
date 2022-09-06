@@ -24,6 +24,10 @@ export class PasswordListService {
     return await this.passwordListRepository.findAll();
   }
 
+  async getCurrentUserLists(userId: number) {
+    return await this.passwordListRepository.findAll({ where: { userId } });
+  }
+
   async updatePasswordList(
     id: number,
     UpdatedPasswordList: UpdatePasswordListDto,
