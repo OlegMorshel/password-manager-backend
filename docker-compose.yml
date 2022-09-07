@@ -1,28 +1,24 @@
-version: '3'
+version: '3.8'
 services:
-  node-admin:
+  api:
+    # image: nestjs-dockerized
     build:
-      context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    command: sh -c "yarn && yarn build && serve -s /app/build"
-    ports:
-      - '3006:3000'
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    container_name: nest-pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=masteel.up@bk.ru
-      - PGADMIN_DEFAULT_PASSWORD=root
-      - PGADMIN_LISTEN_PORT=5432
-    ports:
-      - '8080:80'
-    volumes:
-      - ./pgadmin-data:/var/lib/pgadmin
+      context: .
     depends_on:
-      - db
-volumes:
-  pgdata:
-  pgadmin-data:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/DATABASE_URL
+      NODE_ENV: development
+      PORT: 5000
+    ports:
+      - '8080:5000'
+
+  postgres:
+    image: postgres:lastest
+    ports:
+      - '35000:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
