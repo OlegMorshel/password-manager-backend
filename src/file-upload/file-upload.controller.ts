@@ -1,6 +1,8 @@
 import {
   Controller,
+  Get,
   Post,
+  Req,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
@@ -14,12 +16,14 @@ import { FileUploadService } from './file-upload.service';
 
 @Controller('file-upload')
 export class FileUploadController {
-  constructor(private fileUploadService: FileUploadService) {}
+  constructor(private fileUploadService: FileUploadService) { }
 
   @Post('single')
   @UseInterceptors(FileInterceptor('image'))
-  async uploadSingle(@UploadedFile() image: BufferedFile) {
-    return await this.fileUploadService.uploadSingle(image);
+  async uploadSingle(
+    @UploadedFile() image: BufferedFile
+  ) {
+    return await this.fileUploadService.uploadSingle(image)
   }
 
   @Post('many')

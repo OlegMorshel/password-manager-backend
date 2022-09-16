@@ -15,15 +15,15 @@ import { FileUploadModule } from './file-upload/file-upload.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
+      envFilePath: `.env`,
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       models: [User, PasswordList, PasswordItem],
       autoLoadModels: true,
       synchronize: true,
@@ -38,4 +38,4 @@ import { FileUploadModule } from './file-upload/file-upload.module';
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AtGuard }],
 })
-export class AppModule {}
+export class AppModule { }

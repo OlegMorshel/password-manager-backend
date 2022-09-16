@@ -2,17 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { BufferedFile } from 'src/minio-client/file.model';
 import { MinioClientService } from 'src/minio-client/minio-client.service';
 
+
+
 @Injectable()
 export class FileUploadService {
-  constructor(private minioClientService: MinioClientService) {}
-
-  async uploadSingle(image: BufferedFile) {
+  constructor(private minioClientService: MinioClientService) { }
+  async uploadImage(image: BufferedFile) {
     const uploaded_image = await this.minioClientService.upload(image);
 
     return {
       image_url: uploaded_image.url,
-      message: 'Successfully uploaded to MinIO S3',
+      message: 'Success',
     };
+  }
+
+  async uploadSingle(image: BufferedFile) {
+    let uploaded_image = await this.minioClientService.upload(image)
+
+    return {
+      image_url: uploaded_image.url,
+      message: "Success"
+    }
   }
 
   async uploadMany(files: BufferedFile) {

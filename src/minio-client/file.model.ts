@@ -7,7 +7,7 @@ export interface BufferedFile {
   buffer: Buffer | string;
 }
 
-export interface StoredFile extends HasFile, StoredFileMetadata {}
+export interface StoredFile extends HasFile, StoredFileMetadata { }
 
 export interface HasFile {
   file: Buffer | string;
@@ -22,4 +22,7 @@ export interface StoredFileMetadata {
   fileSrc?: string;
 }
 
-export type AppMimeType = 'image/png' | 'image/jpeg';
+export type AppMimeType =
+  | 'image/png'
+  | 'image/jpeg'
+  | 'image/jpg';
