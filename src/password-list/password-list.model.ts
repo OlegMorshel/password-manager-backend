@@ -28,6 +28,6 @@ export class PasswordList extends Model<PasswordList, IPasswordListCreation> {
   @Column({ type: DataType.STRING })
   name: string;
   @ForeignKey(() => User)
-  @Column
+  @Column({})
   userId: number;
 }

@@ -6,6 +6,7 @@ import {
   ForeignKey,
   HasMany,
 } from 'sequelize-typescript';
+import { File } from 'src/file-upload/file.model';
 import { PasswordList } from 'src/password-list/password-list.model';
 import { PrimaryGeneratedColumn } from 'typeorm';
 interface IUserCreation {
@@ -33,6 +34,7 @@ export class User extends Model<User, IUserCreation> {
   last_name: string;
 
   @Column({ type: DataType.INTEGER, unique: true })
+  @ForeignKey(() => File)
   file_id: number;
 
   @Column({ type: DataType.STRING, unique: true })

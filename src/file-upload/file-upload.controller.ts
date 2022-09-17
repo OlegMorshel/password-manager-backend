@@ -1,10 +1,10 @@
 import {
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
-  Req,
   UploadedFile,
-  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -18,22 +18,29 @@ import { FileUploadService } from './file-upload.service';
 export class FileUploadController {
   constructor(private fileUploadService: FileUploadService) { }
 
-  @Post('single')
-  @UseInterceptors(FileInterceptor('image'))
-  async uploadSingle(
-    @UploadedFile() image: BufferedFile
-  ) {
-    return await this.fileUploadService.uploadSingle(image)
+  @Get('')
+  async getAllFiles() {
+    return await this.fileUploadService.getFiles();
   }
 
-  @Post('many')
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'image1', maxCount: 1 },
-      { name: 'image2', maxCount: 1 },
-    ]),
-  )
-  async uploadMany(@UploadedFiles() files: BufferedFile) {
-    return this.fileUploadService.uploadMany(files);
+  @Get(':id')
+  async getFileById(@Param('id') id: number) {
+    return await this.fileUploadService.getFileById(id)
   }
+
+
+  @Post('')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadFile(
+    @UploadedFile() image: BufferedFile
+  ) {
+    return await this.fileUploadService.uploadFile(image)
+  }
+
+  @Delete(':id')
+  async deleteFile(@Param('id') id: number) {
+    return await this.fileUploadService.deleteFile(id)
+  }
+
+
 }

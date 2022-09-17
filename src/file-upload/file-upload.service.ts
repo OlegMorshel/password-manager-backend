@@ -1,41 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
 import { BufferedFile } from 'src/minio-client/file.model';
 import { MinioClientService } from 'src/minio-client/minio-client.service';
+import { File } from './file.model';
 
 
 
 @Injectable()
 export class FileUploadService {
-  constructor(private minioClientService: MinioClientService) { }
-  async uploadImage(image: BufferedFile) {
-    const uploaded_image = await this.minioClientService.upload(image);
+  constructor(@InjectModel(File)
+  private fileRepository: typeof File, private minioClientService: MinioClientService) { }
 
-    return {
-      image_url: uploaded_image.url,
-      message: 'Success',
-    };
+  async getFiles() {
+    return await this.fileRepository.findAll()
+  }
+  async getFileById(id: number) {
+    const existedFile = await this.fileRepository.findOne({ where: { id } })
+    if (!existedFile) throw new HttpException(`File with ID:${id} NOT FOUND`, HttpStatus.NOT_FOUND)
+    return existedFile
+  }
+  async deleteFile(id: number) {
+    const removedFile = await this.getFileById(id)
+    await this.fileRepository.destroy({ where: { id: removedFile.id } })
+    return { message: 'File success deleted' }
   }
 
-  async uploadSingle(image: BufferedFile) {
+  async uploadFile(image: BufferedFile) {
     let uploaded_image = await this.minioClientService.upload(image)
 
+    const dbFile = await this.fileRepository.create({ name: image.originalname, path: uploaded_image.relative_path });
+
     return {
-      image_url: uploaded_image.url,
+      file: {
+        id: dbFile.id,
+        name: dbFile.name,
+        path: process.env.MINIO_FILES_ENDPOINT + uploaded_image.relative_path
+      },
       message: "Success"
     }
   }
 
-  async uploadMany(files: BufferedFile) {
-    const image1 = files['image1'][0];
-    const uploaded_image1 = await this.minioClientService.upload(image1);
-
-    const image2 = files['image2'][0];
-    const uploaded_image2 = await this.minioClientService.upload(image2);
-
-    return {
-      image1_url: uploaded_image1.url,
-      image2_url: uploaded_image2.url,
-      message: 'Successfully uploaded mutiple image on MinioS3',
-    };
-  }
 }
