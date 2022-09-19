@@ -25,18 +25,24 @@ export class FileUploadService {
     return { message: 'File success deleted' }
   }
 
-  async uploadFile(image: BufferedFile) {
-    let uploaded_image = await this.minioClientService.upload(image)
+  async uploadFile(file: BufferedFile) {
 
-    const dbFile = await this.fileRepository.create({ name: image.originalname, path: uploaded_image.relative_path });
+    if (!file) throw new HttpException('Error: loading file', HttpStatus.NOT_FOUND)
 
-    return {
-      file: {
-        id: dbFile.id,
-        name: dbFile.name,
-        path: process.env.MINIO_FILES_ENDPOINT + uploaded_image.relative_path
-      },
-      message: "Success"
+    let uploaded_file = await this.minioClientService.upload(file)
+    if (uploaded_file) {
+      const dbFile = await this.fileRepository.create({ name: uploaded_file.hashedFileName.encryptedData, path: uploaded_file.relative_path });
+
+      return {
+        file: {
+          id: dbFile.id,
+          name: dbFile.name,
+          path: process.env.MINIO_FILES_ENDPOINT + uploaded_file.relative_path
+        },
+        message: "Success"
+      }
+    } else {
+      throw new HttpException('Error: loading file to server ', HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
